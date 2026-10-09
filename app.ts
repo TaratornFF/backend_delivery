@@ -25,7 +25,7 @@ app.post('/api/orders', createOrder);
 app.get('/api/orders', getOrders);
 app.put('/api/orders/:id', updateOrder);
 app.delete('/api/orders/:id', deleteOrder);
-app.post('/api/orders/mock', mockOrders);
+app.get('/api/orders/mock', mockOrders);
 app.delete('/api/orders/clear-all', clearAllOrders);
 app.get('/api/orders/nearby', getNearbyOrders);
 
