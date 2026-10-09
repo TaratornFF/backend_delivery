@@ -6,6 +6,10 @@ const db = new sqlite3.Database('./lunchbox.db', (err) => {
     } else {
         console.log('Connected to SQLite database.');
         db.serialize(() => {
+            // บังคับลบตารางเก่าทิ้ง เพื่อให้สร้างใหม่พร้อมฟิลด์ order_date แน่นอน
+            db.run(`DROP TABLE IF EXISTS orders`);
+            db.run(`DROP TABLE IF EXISTS customers`);
+
             db.run(`CREATE TABLE IF NOT EXISTS customers (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 firstname TEXT,
@@ -21,12 +25,7 @@ const db = new sqlite3.Database('./lunchbox.db', (err) => {
                 quantity INTEGER,
                 order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (customer_id) REFERENCES customers(id)
-            )`, () => {
-                // คำสั่งช่วยเติมคอลัมน์ order_date อัตโนมัติ หากตารางเดิมยังไม่มีคอลัมน์นี้
-                db.run(`ALTER TABLE orders ADD COLUMN order_date DATETIME DEFAULT CURRENT_TIMESTAMP`, (alterErr) => {
-                    // ถ้ามีคอลัมน์อยู่แล้ว ระบบจะแจ้งเตือน Error ซึ่งปล่อยผ่านได้เลย
-                });
-            });
+            )`);
         });
     }
 });
