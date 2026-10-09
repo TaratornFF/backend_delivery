@@ -60,16 +60,26 @@ export const mockOrders = (req: Request, res: Response) => {
         mockCustomers.forEach(c => stmtCust.run(c));
         stmtCust.finalize();
 
-        const stmtOrd = db.prepare(`INSERT INTO orders (customer_id, quantity) VALUES (?, ?)`);
+        // เพิ่ม order_date เข้าไปในคำสั่ง SQL
+        const stmtOrd = db.prepare(`INSERT INTO orders (customer_id, quantity, order_date) VALUES (?, ?, ?)`);
+        
         for (let i = 0; i < 25; i++) {
             const randomCustomerId = Math.floor(Math.random() * 5) + 1;
             const randomQty = Math.floor(Math.random() * 3) + 1;
-            stmtOrd.run(randomCustomerId, randomQty);
+
+            // สุ่มเวลาสตรีมย้อนหลังไปในช่วง 24 ชั่วโมงที่ผ่านมา (หน่วยเป็นนาที)
+            const randomMinutesAgo = Math.floor(Math.random() * 1440);
+            const orderDate = new Date(Date.now() - randomMinutesAgo * 60 * 1000)
+                .toISOString()
+                .slice(0, 19)
+                .replace('T', ' ');
+
+            stmtOrd.run(randomCustomerId, randomQty, orderDate);
         }
         stmtOrd.finalize();
     });
 
-    res.json({ message: "Mock data generated successfully." });
+    res.json({ message: "Mock data generated successfully with random order dates." });
 };
 
 export const clearAllOrders = (req: Request, res: Response) => {
