@@ -1,0 +1,21 @@
+meta {
+  name: GET-2
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:3000/api/customers/nearby?lat=13.7563&lng=100.5018
+  body: none
+  auth: inherit
+}
+
+params:query {
+  lat: 13.7563
+  lng: 100.5018
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

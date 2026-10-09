@@ -1,0 +1,15 @@
+meta {
+  name: DELETE-Clear
+  type: http
+  seq: 1
+}
+
+delete {
+  url: http://localhost:3000/api/orders/clear-all
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}
