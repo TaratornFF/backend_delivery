@@ -1,0 +1,17 @@
+meta {
+  name: 10. Update Order
+  type: http
+  seq: 10
+}
+
+put {
+  url: https://delivery-backend-8xrw.onrender.com/api/orders/1
+  body: json
+  auth: none
+}
+
+body:json {
+{
+  "quantity": 5
+}
+}

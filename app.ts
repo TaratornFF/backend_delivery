@@ -23,10 +23,14 @@ app.get('/api/customers/nearby', getNearbyCustomers);
 // Order Routes
 app.post('/api/orders', createOrder);
 app.get('/api/orders', getOrders);
-app.put('/api/orders/:id', updateOrder);
-app.delete('/api/orders/:id', deleteOrder);
+
+// ย้ายเส้นทางเฉพาะเจาะจงมาไว้ด้านบน
 app.get('/api/orders/mock', mockOrders);
 app.delete('/api/orders/clear-all', clearAllOrders);
 app.get('/api/orders/nearby', getNearbyOrders);
+
+// เอาเส้นทางที่มีตัวแปร :id ไว้ล่างสุด
+app.put('/api/orders/:id', updateOrder);
+app.delete('/api/orders/:id', deleteOrder);
 
 export default app;
