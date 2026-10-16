@@ -4,8 +4,12 @@ meta {
   seq: 7
 }
 
-post {
+get {
   url: https://delivery-backend-8xrw.onrender.com/api/orders/mock
   body: none
-  auth: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
 }

@@ -5,13 +5,25 @@ meta {
 }
 
 put {
-  url: https://delivery-backend-8xrw.onrender.com/api/orders/1
+  url: https://delivery-backend-8xrw.onrender.com/api/orders/51
   body: json
-  auth: none
+  auth: inherit
 }
 
 body:json {
-{
-  "quantity": 5
+  {
+      "id": 51,
+      "quantity": 1,
+      "order_date": "2026-10-08 14:40:40",
+      "customer_id": 3,
+      "firstname": "kuy",
+      "lastname": "Maneerat",
+      "lat": 13.76,
+      "lng": 100.51
+    }
 }
+
+settings {
+  encodeUrl: true
+  timeout: 0
 }
