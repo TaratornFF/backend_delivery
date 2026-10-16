@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import db from '../dbconnect';
+import { conn } from '../dbconnect';
 
 // Haversine formula calculation
 const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
@@ -11,59 +11,76 @@ const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: numbe
               Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
-};
+}
 
-export const createCustomer = (req: Request, res: Response) => {
+export const createCustomer = async (req: Request, res: Response) => {
     const { firstname, lastname, phone, lat, lng } = req.body;
-    db.run(`INSERT INTO customers (firstname, lastname, phone, lat, lng) VALUES (?, ?, ?, ?, ?)`,
-        [firstname, lastname, phone, lat, lng], function(err) {
-            if (err) return res.status(400).json({ error: err.message });
-            res.json({ id: this.lastID, firstname, lastname, phone, lat, lng });
-        });
+    try {
+        const [result]: any = await conn.execute(
+            `INSERT INTO customers (firstname, lastname, phone, lat, lng) VALUES (?, ?, ?, ?, ?)`,
+            [firstname, lastname, phone, lat, lng]
+        );
+        res.json({ id: result.insertId, firstname, lastname, phone, lat, lng });
+    } catch (err: any) {
+        res.status(400).json({ error: err.message });
+    }
 };
 
-export const getCustomers = (req: Request, res: Response) => {
-    db.all(`SELECT * FROM customers`, [], (err, rows) => {
-        if (err) return res.status(400).json({ error: err.message });
+export const getCustomers = async (req: Request, res: Response) => {
+    try {
+        const [rows] = await conn.execute(`SELECT * FROM customers`);
         res.json(rows);
-    });
+    } catch (err: any) {
+        res.status(400).json({ error: err.message });
+    }
 };
 
-export const updateCustomer = (req: Request, res: Response) => {
+export const updateCustomer = async (req: Request, res: Response) => {
     const { firstname, lastname, phone, lat, lng } = req.body;
-    db.run(`UPDATE customers SET firstname = ?, lastname = ?, phone = ?, lat = ?, lng = ? WHERE id = ?`,
-        [firstname, lastname, phone, lat, lng, req.params.id], function(err) {
-            if (err) return res.status(400).json({ error: err.message });
-            res.json({ message: "Customer updated successfully" });
-        });
+    try {
+        await conn.execute(
+            `UPDATE customers SET firstname = ?, lastname = ?, phone = ?, lat = ?, lng = ? WHERE id = ?`,
+            [firstname, lastname, phone, lat, lng, req.params.id]
+        );
+        res.json({ message: "Customer updated successfully" });
+    } catch (err: any) {
+        res.status(400).json({ error: err.message });
+    }
 };
 
-export const deleteCustomer = (req: Request, res: Response) => {
-    db.run(`DELETE FROM customers WHERE id = ?`, [req.params.id], function(err) {
-        if (err) return res.status(400).json({ error: err.message });
+export const deleteCustomer = async (req: Request, res: Response) => {
+    try {
+        await conn.execute(`DELETE FROM customers WHERE id = ?`, [req.params.id]);
         res.json({ message: "Customer deleted successfully" });
-    });
+    } catch (err: any) {
+        res.status(400).json({ error: err.message });
+    }
 };
 
-export const searchCustomers = (req: Request, res: Response) => {
+export const searchCustomers = async (req: Request, res: Response) => {
     const { keyword } = req.query;
     const searchPattern = `%${keyword}%`;
-    db.all(`SELECT * FROM customers WHERE firstname LIKE ? OR lastname LIKE ?`,
-        [searchPattern, searchPattern], (err, rows) => {
-            if (err) return res.status(400).json({ error: err.message });
-            res.json(rows);
-        });
+    try {
+        const [rows] = await conn.execute(
+            `SELECT * FROM customers WHERE firstname LIKE ? OR lastname LIKE ?`,
+            [searchPattern, searchPattern]
+        );
+        res.json(rows);
+    } catch (err: any) {
+        res.status(400).json({ error: err.message });
+    }
 };
 
-export const getNearbyCustomers = (req: Request, res: Response) => {
+export const getNearbyCustomers = async (req: Request, res: Response) => {
     const lat = parseFloat(req.query.lat as string);
     const lng = parseFloat(req.query.lng as string);
-
     if (isNaN(lat) || isNaN(lng)) return res.status(400).json({ error: "Invalid lat/lng" });
-
-    db.all(`SELECT * FROM customers`, [], (err, rows: any[]) => {
-        if (err) return res.status(400).json({ error: err.message });
-        const nearby = rows.filter(c => calculateDistance(lat, lng, c.lat, c.lng) <= 1.0);
+    
+    try {
+        const [rows]: any = await conn.execute(`SELECT * FROM customers`);
+        const nearby = rows.filter((c: any) => calculateDistance(lat, lng, c.lat, c.lng) <= 1.0);
         res.json({ total: nearby.length, data: nearby });
-    });
+    } catch (err: any) {
+        res.status(400).json({ error: err.message });
+    }
 };
